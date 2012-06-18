@@ -1,0 +1,10 @@
+; $Id: freeradius.info,v 1.0.0.0 2011/11/11 22:10:00  Exp $
+name = gitosis
+description = Providing Gitosis functional for users and projects
+core = 6.x
+package = "-itexl-"
+
+version = "6.x"
+core = "6.x"
+project = "itexl"
+datestamp = "1273367107"

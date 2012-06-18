@@ -1,0 +1,90 @@
+<?php
+
+//$Id: freeradius.info,v 1.0.0.0 2011/11/11 22:10:00  Exp $
+/*
+ * Implementaion of hook_schema().
+ */
+//function freeradius_schema() {
+//  $schema = array();
+//  $schema['itexl_invites'] = array(
+//    'fields' => array(
+//      'uid' => array(
+//        'type' => 'int',
+//        'unsigned' => TRUE,
+//        'not null' => TRUE,
+//        'default' => 0,
+//      ),
+//      'nid' => array(
+//        'type' => 'int',
+//        'unsigned' => TRUE,
+//        'not null' => TRUE,
+//        'default' => 0,
+//      ),
+//      'mail' => array(
+//        'type' => 'varchar',
+//        'length' => 255,
+//        'not null' => TRUE,
+//        'default' => '',
+//      ),
+//      'date' => array(
+//        'type' => 'text',
+//        'size' => 'big',
+//        'serialize' => TRUE,
+//      ),
+//      'time' => array(
+//        'type' => 'text',
+//        'size' => 'big',
+//        'serialize' => TRUE,
+//      ),
+//      'join' => array(
+//        'type' => 'text',
+//        'size' => 'big',
+//        'serialize' => TRUE,
+//      ),
+//      'status' => array(
+//        'type' => 'varchar',
+//        'length' => 255,
+//        'not null' => TRUE,
+//        'default' => '',
+//      ),
+//      'code' => array(
+//        'type' => 'varchar',
+//        'length' => 255,
+//        'not null' => TRUE,
+//        'default' => '',
+//      ),
+//    ),
+//  );
+//  return $schema;
+//}
+/**
+ * Implementation of hook_schema_alter
+ */
+//function freeradius_schema_alter(&$schema) {
+////    print_r($schema);die;
+//    $schema['users']['fields']['radcheck_id'] = array(
+//        'type' => 'int',
+//        'not null' => TRUE,
+//        'default' => 0,
+//        'description' => 'id from radcheck table',
+//    );
+//}
+//
+/**
+ * Implementation of hook_install().
+ */
+function gitosis_install() {
+    
+}
+
+/**
+ * Implementation of hook_uninstall().
+ */
+function gitosis_uninstall() {
+    variable_del('gitosis_directory');
+    variable_del('gitosis_repository');
+    variable_del('gitosis_conf');
+    variable_del('gitosis_content_type');
+    variable_del('gitosis_roles');
+    variable_del('gitosis_field_name');
+}

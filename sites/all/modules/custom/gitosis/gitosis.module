@@ -1,0 +1,198 @@
+<?php
+
+// $Id: itexl.module,v 1.11.2.78 2010/01/08 04:47:21 quicksketch Exp $
+
+function gitosis_user_permissions($uid = 0) {
+    $return = FALSE;
+    global $user;
+    if ($uid) {
+        $current_user = user_load($uid);
+    } else {
+        $current_user = $user;
+    }
+    $roles = variable_get('gitosis_roles', '');
+    if ($roles) {
+        foreach ($roles as $key => $value) {
+            if (array_key_exists($value, $current_user->roles)) {
+                $return = TRUE;
+                break;
+            }
+        }
+    }
+    return $return;
+}
+
+/**
+ * Implementation of hook_init()
+ */
+function gitosis_init() {
+    
+}
+
+function gitosis_system_name($string) {
+    return preg_replace('/[^a-z0-9]+/', '_', strtolower($string));
+}
+
+/**
+ * Implementation of hook_user()
+ */
+function gitosis_user($op, &$edit, &$account, $category = NULL) {
+    switch ($op) {
+//        case 'insert':
+        case 'after_update':
+            gitosis_generate_configuration();
+            break;
+    }
+}
+
+/**
+ * Implementation of hook_perm()
+ */
+function gitosis_perm() {
+    return array(
+        'administer gitosis',
+    );
+}
+
+/**
+ * Implementation of hook_menu()
+ */
+function gitosis_menu() {
+    $items = array();
+    $admin_page = array(
+        'page callback' => 'gitosis_admin_page',
+        'access arguments' => array('administer gitosis'),
+        'file' => 'includes/gitosis.admin.inc',
+    );
+    $items['admin/settings/gitosis'] = $admin_page + array(
+        'title' => 'Gitosis configuration',
+        'page arguments' => array('repository'),
+        'type' => MENU_NORMAL_ITEM,
+    );
+    $items['admin/settings/gitosis/repository'] = $admin_page + array(
+        'title' => 'Repository',
+        'page arguments' => array(3),
+        'type' => MENU_DEFAULT_LOCAL_TASK,
+    );
+    $items['admin/settings/gitosis/content'] = $admin_page + array(
+        'title' => 'Content',
+        'page arguments' => array(3),
+        'type' => MENU_LOCAL_TASK,
+    );
+    $items['user/%/gitosis'] = array(
+        'title' => 'Gitosis',
+        'page callback' => 'gitosis_user_page',
+        'access callback' => 'gitosis_user_permissions',
+        'file' => 'includes/gitosis.admin.inc',
+        'type' => MENU_LOCAL_TASK,
+    );
+    $items['user/%/gitosis/add'] = array(
+        'title' => 'Add Key',
+        'page callback' => 'gitosis_add_user_page',
+        'access callback' => 'gitosis_user_permissions',
+        'file' => 'includes/gitosis.admin.inc',
+        'type' => MENU_LOCAL_TASK,
+    );
+    $items['user/%/gitosis/delete/%'] = array(
+        'title' => 'Delete Key',
+        'page callback' => 'gitosis_delete_key',
+        'page arguments' => array(4),
+        'access callback' => 'gitosis_user_permissions',
+        'file' => 'includes/gitosis.admin.inc',
+        'type' => MENU_CALLBACK,
+    );
+    return $items;
+}
+
+function _gitosis_load_handler() {
+    module_load_include('php', 'gitosis', 'includes/gitosis.handler');
+    $gitosis = new Gitosis();
+    $gitosis->gitosis_directory = variable_get('gitosis_directory', 'gitosis-admin');
+    $gitosis->repository = variable_get('gitosis_repository', '');
+    return $gitosis;
+}
+
+function gitosis_generate_configuration() {
+    $gitosis_conf = variable_get('gitosis_conf', '');
+    $gitosis = _gitosis_load_handler();
+    $content_type = variable_get('gitosis_content_type', '');
+    $field_name = variable_get('gitosis_field_name', '');
+    $roles = variable_get('gitosis_roles', '');
+    $query = array(
+        "SELECT * FROM {node}",
+        "LEFT JOIN {content_$field_name} ON {content_$field_name}.nid = {node}.nid",
+        "LEFT JOIN {users} ON {content_$field_name}." . $field_name . "_uid = {users}.uid",
+        "WHERE type = '$content_type'",
+    );
+    $result = db_query(implode(" ", $query));
+    while ($row = db_fetch_array($result)) {
+        $current_project = gitosis_system_name($row['title'] . $row['nid']);
+        if (gitosis_user_permissions($row['uid'])) {
+            $current_user = array($row['name']);
+            if (isset($configuration_data[$current_project]['members'])) {
+                $current_user = array_merge($current_user, $configuration_data[$current_project]['members']);
+//                var_dump($current_user);
+//                die;
+            }
+        }
+        if ($current_user != array(0 => null)) {
+            $configuration_data[$current_project] = array(
+                'members' => $current_user,
+                'writable' => $current_project,
+            );
+        }
+    }
+//    var_dump($configuration_data);
+//    die;
+    $configuration = $gitosis->generate_configuration($configuration_data);
+    $gitosis->save_configuration($gitosis_conf . $configuration);
+    $gitosis->exec('add .');
+    $gitosis->exec('commit -am "' . date('D, d M Y H-i-s') . '"');
+//    die;
+    return $gitosis->exec('push');
+}
+
+function gitosis_nodeapi(&$node, $op, $a3 = NULL, $a4 = NULL) {
+    $content_type = variable_get('gitosis_content_type', '');
+    if ($node->type == $content_type) {
+        global $user;
+        $user_flag = 0;
+        $field_name = variable_get('gitosis_field_name', '');
+        $gitosis = _gitosis_load_handler();
+        switch ($op) {
+            case 'presave':
+                break;
+            case 'insert':
+            case 'update':
+                gitosis_generate_configuration();
+                break;
+            case 'view':
+                if (gitosis_user_permissions() && $node->$field_name) {
+                    foreach ($node->$field_name as $key => $value) {
+                        if ($value['uid'] === $user->uid)
+                            $user_flag = 1;
+                    }
+                }
+                if ($user_flag) {
+                    $node->content['gitosis'] = array(
+                        '#type' => 'fieldset',
+                        '#title' => t('Remote git repository'),
+                        '#weight' => -100,
+                        '#collapsible' => TRUE,
+                        '#collapsed' => TRUE,
+                    );
+                    $node->content['gitosis']['repository'] = array(
+                        '#type' => 'item',
+                        '#value' => '<b>' . $gitosis->repository_name(gitosis_system_name($node->title . $node->nid)) . '</b>',
+                    );
+                    $node->content['gitosis']['key'] = array(
+                        '#type' => 'item',
+                        '#value' => l(t('your public key'), 'user/' . $user->uid . '/gitosis'),
+                    );
+                }
+                break;
+        }
+    }
+}
+
+?>

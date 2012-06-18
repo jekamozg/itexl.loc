@@ -1,0 +1,78 @@
+<?php
+// $Id: itexl.module,v 1.11.2.78 2010/01/08 04:47:21 quicksketch Exp $
+
+/**
+ * Implementation of hook_init()
+ */
+function freeradius_init() {
+    
+}
+
+function _freeradius_load_handler() {
+    module_load_include('php', 'freeradius', 'includes/freeradius.handler');
+    $freeradius = new Freeradius();
+    $freeradius->default_password = variable_get('freeradius_default_password', '');
+    return $freeradius;
+}
+
+function freeradius_user_permissions($uid = NULL) {
+    $return = FALSE;
+    global $user;
+    if ($uid) {
+        $current_user = user_load($uid);
+    } else {
+        $current_user = $user;
+    }
+    $roles = variable_get('freeradius_roles', '');
+    if ($roles) {
+        foreach ($roles as $key => $value) {
+            if (array_key_exists($value, $current_user->roles)) {
+                $return = TRUE;
+                break;
+            }
+        }
+    }
+    return $return;
+}
+
+/**
+ * Implementation of hook_perm()
+ */
+function freeradius_perm() {
+    return array(
+        'administer freeradius',
+    );
+}
+
+/**
+ * Implementation of hook_menu()
+ */
+function freeradius_menu() {
+    $items = array();
+    $admin_page = array(
+        'page callback' => 'freeradius_admin_page',
+        'access arguments' => array('administer freeradius'),
+        'file' => 'includes/freeradius.admin.inc',
+    );
+    $items['admin/settings/freeradius'] = $admin_page + array(
+        'title' => 'Freeradius configuration',
+        'type' => MENU_LOCAL_TASK,
+    );
+    $items['user/%/freeradius'] = array(
+        'title' => 'Freeradius',
+        'page callback' => 'freeradius_user_page',
+        'access callback' => 'freeradius_user_permissions',
+        'file' => 'includes/freeradius.admin.inc',
+        'type' => MENU_LOCAL_TASK,
+    );
+    return $items;
+}
+
+/**
+ * Implementation of hook_user()
+ */
+function freeradius_user($op, &$edit, &$account, $category = NULL) {
+    
+}
+
+?>

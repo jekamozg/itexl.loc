@@ -1,0 +1,254 @@
+/*footer*/
+#footer {
+}
+
+div.footer-about {
+    margin-top: 20px;
+    text-align: justify;
+    width: 700px;
+    float: left;
+}
+div.footer-about p {
+    font-size: 25px;
+}
+div.footer-follow {
+    width: 200px;
+    float: right;
+}
+
+div.footer-1 {
+    width: 960px;
+    margin: 0 auto;
+}
+
+div#footer-main-1 {
+    height: 180px;
+    background: gainsboro;
+    border-top: 1px solid #CCC;
+}
+
+div#footer-main-2 {
+    overflow: hidden;
+    background: url(../images/f2_bg.gif) repeat-x #3F3F3F;
+    height: 158px;
+}
+
+div#footer-main-3 {
+    overflow: hidden;
+    height: 30px;
+    background: url(../images/f3_bg.gif) repeat-x #252525;
+}
+
+/*end footer*/
+
+/*content_footer*/
+.content_footer_buttons {
+    height: 65px;
+}
+.subscribe_btn{
+    float: left;
+}
+.subscribe_btn a {
+    background: url(../images/subscribe_btn.png) left top no-repeat;
+    height: 64px;
+    width: 436px;
+    border: 0;
+    text-decoration: none;
+    display: block;
+}
+.subscribe_btn a:hover {
+    background: url(../images/subscribe_btn.png) left bottom no-repeat;
+    cursor: pointer;
+}
+
+.favorites_btn{
+    float: left;
+}
+.favorites_btn > a {
+    background: url(../images/favorites_btn.png) left top no-repeat;
+    height: 64px;
+    width: 436px;
+    border: 0;
+    text-decoration: none;
+    display: block;
+    text-indent: 73px;
+    line-height: 71px;
+    font-size: 25px;
+    font-weight: bold;
+    color: white;
+}
+.favorites_btn > a:hover {
+    background: url(../images/favorites_btn.png) left bottom no-repeat;
+    cursor: pointer;
+    color: white;
+}
+.favorites_list {
+    display: none;
+    position: absolute;
+    margin-left: -50px;
+    width: 350px;
+    background-image: url('../images/bg_black.png');
+    padding: 5px 5px 5px 0px;
+    color: white;
+    border-radius: 7px !important;
+    -moz-border-radius: 7px !important;
+    -webkit-border-radius: 7px !important;
+}
+.favorites_list li{
+    list-style-type: none !important;
+    list-style-image: none;
+}
+.favorites_list li a{
+    font-weight: bold;
+    font-size: 14px;
+    text-transform: uppercase;
+    color: #fff;
+    text-indent: 11px;
+}
+.favorites_list li a:hover{
+    text-decoration: underline;
+}
+.app_btn{
+    float: right;
+}
+.app_btn a {
+    background: url(../images/app_btn.png) left top no-repeat;
+    height: 61px;
+    width: 365px;
+    border: 0;
+    text-decoration: none;
+    display: block;
+}
+.app_btn a:hover {
+    background: url(../images/app_btn.png) left bottom no-repeat;
+    cursor: pointer;
+}
+/*end content_footer*/
+/*voice*/
+#uvTab {
+    z-index: 9999999 !important;
+}
+/*end voice*/
+
+/*invite a friend*/
+#itexl-inviteform .form-item{
+    margin-top: 0px;
+    margin-bottom: 0px;
+}
+#itexl-inviteform > div > .form-item input{
+    width: 100px;
+    margin-right: 5px;
+}
+#itexl-inviteform #edit-name-wrapper input {
+    width: 208px;
+}
+#itexl-inviteform #edit-mail-wrapper input {
+    width: 208px;
+}
+#itexl-inviteform #edit-date-wrapper {
+    float: left;
+}
+#itexl-inviteform #edit-time-wrapper {
+    float: left;
+}
+#itexl-inviteform .form-radios {
+    clear: both;
+}
+#itexl-inviteform .form-radios .form-item{
+    float: left;
+    margin-right: 13px;
+}
+#itexl-inviteform input[type="submit"] {
+    float: left;
+    clear: both;
+    background-image: url(../images/filter.png);
+    background-repeat: no-repeat;
+    background-color: transparent;
+    margin-top: 5px;
+    width: 53px;
+    height: 34px;
+    border: 0;
+    font-size: 0;
+}
+.invite_a_friend {
+    /*    padding: 5px;*/
+    color: white;
+    height: 45px;
+    width: 150px;
+    float: left;
+    background: url('../images/email-button-1.png') no-repeat;
+    opacity: 0.8;
+}
+.invite_a_friend div {
+    background-color: #333;
+    font-size: 20px;
+    border-top-right-radius: 5px !important;
+    border-bottom-right-radius: 5px !important;
+    /*    -moz-border-radius: 5px !important;
+        -webkit-border-radius: 5px !important;*/
+    line-height: 34px;
+    margin-left: 45px;
+    margin-top: 5px;
+    padding-left: 4px;
+}
+
+.invite_a_friend:hover {
+    cursor: pointer;
+    opacity: 1;
+}
+.invite_a_friend img {
+    width: 45px;
+    z-index: 10000;
+    margin-top: -6px;
+    float: left;
+}
+.invite_a_friend_form {
+    display: none;
+    position: absolute;
+    z-index: 10000;
+    background-image: url('../images/bg_black.png');
+    padding: 9px;
+    margin-top: 48px;
+    color: white;
+    border-radius: 5px !important;
+    -moz-border-radius: 5px !important;
+    -webkit-border-radius: 5px !important;
+}
+/*end invite a friend*/
+.region-footer {
+    font-size: 16px !important;
+}
+
+/*previous-next region*/
+.region-prev-next {
+    height: 0;
+    position: absolute;
+    width: 100%;
+}
+.pn_buttons {
+    width: 100%;
+}
+
+.pn_buttons a{
+    display: block;
+    width: 50px;
+    height: 200px;
+}
+#previous_new {
+    background: url('../images/previous_new.gif') top left no-repeat;
+    float: left;
+    left: 0;
+}
+#previous_new:hover {
+    background: url('../images/previous_new.gif') bottom left no-repeat;
+}
+#next_new {
+    background: url('../images/next_new.gif') top left no-repeat;
+    float: right;
+    right: 0;
+}
+#next_new:hover {
+    background: url('../images/next_new.gif') bottom left no-repeat;
+}
+
+/*end previous-next region*/
