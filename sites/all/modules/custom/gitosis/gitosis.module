@@ -125,30 +125,57 @@ function gitosis_generate_configuration() {
         "WHERE type = '$content_type'",
     );
     $result = db_query(implode(" ", $query));
+
+    $user_items;
+
+    $dir = variable_get('gitosis_directory', 'gitosis-admin') . '/keydir';
+    $configuration_data = array();
+    $members = array();
+
+    module_load_include('inc', 'gitosis', 'includes/gitosis.admin');
+    
     while ($row = db_fetch_array($result)) {
-        $current_project = gitosis_system_name($row['title'] . $row['nid']);
+        $current_user = array();
+        $current_project = gitosis_system_name($row['title'] .'_'. $row['nid']);
         if (gitosis_user_permissions($row['uid'])) {
-            $current_user = array($row['name']);
+
+            if (!isset($members[$row['name']])) {
+                if ($handle = opendir($dir)) {
+                    while (false !== ($entry = readdir($handle))) {
+                        if ($entry != "." && $entry != "..") {
+                            $current_file = gitosis_check_key($entry, $row['name']);
+                            if ($current_file) {
+                                $entry_info = pathinfo($entry);
+                                $members[$row['name']][] = $entry_info['filename'];
+                            }
+                        }
+                    }
+                    closedir($handle);
+                }
+            }
+            if($members[$row['name']] && $row['name']) {
+                $current_user = $members[$row['name']];
+            }
+//            var_dump($members);
             if (isset($configuration_data[$current_project]['members'])) {
                 $current_user = array_merge($current_user, $configuration_data[$current_project]['members']);
-//                var_dump($current_user);
-//                die;
             }
         }
-        if ($current_user != array(0 => null)) {
+        if ($current_user) {
             $configuration_data[$current_project] = array(
                 'members' => $current_user,
                 'writable' => $current_project,
             );
         }
     }
-//    var_dump($configuration_data);
 //    die;
+//    var_dump($configuration_data);die('test');
+
     $configuration = $gitosis->generate_configuration($configuration_data);
     $gitosis->save_configuration($gitosis_conf . $configuration);
     $gitosis->exec('add .');
     $gitosis->exec('commit -am "' . date('D, d M Y H-i-s') . '"');
-//    die;
+
     return $gitosis->exec('push');
 }
 
@@ -183,7 +210,7 @@ function gitosis_nodeapi(&$node, $op, $a3 = NULL, $a4 = NULL) {
                     );
                     $node->content['gitosis']['repository'] = array(
                         '#type' => 'item',
-                        '#value' => '<b>' . $gitosis->repository_name(gitosis_system_name($node->title . $node->nid)) . '</b>',
+                        '#value' => '<b>' . $gitosis->repository_name(gitosis_system_name($node->title .'_'. $node->nid)) . '</b>',
                     );
                     $node->content['gitosis']['key'] = array(
                         '#type' => 'item',

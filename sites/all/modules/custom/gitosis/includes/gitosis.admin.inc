@@ -5,12 +5,17 @@
  * and open the template in the editor.
  */
 
-function gitosis_check_key($filename) {
+function gitosis_check_key($filename, $username = '') {
     global $user;
-    $gitosis = _gitosis_load_handler();
+//    $gitosis = _gitosis_load_handler();
     $current_file = explode("_", $filename);
-    if ($current_file[0] == $user->name) {
-        $item = $current_file[1] . $gitosis->key_extension;
+    
+    if(!$username) {
+        $username = $user->name;
+    }
+    
+    if ($current_file[0] == str_replace("_", "-", $username)) {
+        $item = $current_file[1];
         return $item;
     }
     else {
@@ -21,10 +26,10 @@ function gitosis_check_key($filename) {
 function gitosis_delete_key($filename) {
     global $user;
     if(gitosis_check_key($filename)) {
-//        var_dump($filename);die;
         $dir = variable_get('gitosis_directory', 'gitosis-admin') . '/keydir';
         file_delete($dir.'/'.$filename);
         drupal_set_message(t('Key successfully deleted'));
+        gitosis_generate_configuration();
     }
     else {
         drupal_set_message('You not have this key');
@@ -63,8 +68,6 @@ function gitosis_user_page() {
     if($items) {
         $output .= theme_table($header, $items);
     }
-//    $output .= theme_item_list($items);
-
     return $output;
 }
 
@@ -112,7 +115,7 @@ function gitosis_add_user_page_form() {
     );
     $form['gitosis']['file_key'] = array(
         '#type' => 'file',
-        '#title' => t('Attach new file'),
+        '#title' => t('Add new key'),
         '#size' => 40
     );
     $form['gitosis']['submit'] = array(
@@ -131,7 +134,7 @@ function gitosis_add_user_page_form_submit(&$form, &$form_state) {
 
     $form_values = $form_state['values'];
 
-    $pubkey_name = $user->name . '_' . str_replace("_", "-", $form_values['name_key']) . '_' . time();
+    $pubkey_name = str_replace("_", "-", $user->name) . '_' . str_replace("_", "-", $form_values['name_key']) . '_' . time();
     $current_filename = $dir . '/' . $pubkey_name . $gitosis->key_extension;
 
     if ($form_values['key']) {
@@ -144,6 +147,7 @@ function gitosis_add_user_page_form_submit(&$form, &$form_state) {
     }
 
     if (file_exists($current_filename) && $gitosis->validate_pubkey(file_get_contents($current_filename))) {
+        gitosis_generate_configuration();
         drupal_set_message(t('Your public key has been added'));
         drupal_goto('user/'.$user->uid.'/gitosis/');
     } else {
